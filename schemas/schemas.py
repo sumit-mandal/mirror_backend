@@ -162,3 +162,52 @@ class PaymentTransactionRead(BaseModel):
         from_attributes = True 
 
         
+
+class LicensePackRead(BaseModel):
+    id: UUID 
+    company_id: UUID 
+    pack_type: str 
+    total_licenses: int 
+    used_licenses: int 
+    available_licenses: int 
+    price_paid: float 
+    currency: str 
+    purchase_date: datetime 
+    expiration_date: datetime | None 
+    stripe_payment_id: str | None 
+    stripe_invoice_id: str | None 
+    status: str 
+    created_at: datetime 
+    updated_at: datetime 
+
+    class Config:
+        from_attributes = True 
+
+
+
+class PaymentTransactionRead(BaseModel):
+    id: UUID
+    company_id: UUID | None
+    user_id: UUID | None              
+    transaction_type: str
+    amount: float
+    currency: str
+    status: str
+    stripe_payment_intent_id: str | None
+    stripe_charge_id: str | None
+    stripe_invoice_id: str | None
+    stripe_customer_id: str | None
+    license_pack_id: UUID | None
+    product_description: str | None
+    initiated_at: datetime | None
+    completed_at: datetime | None
+    failed_at: datetime | None
+    refunded_at: datetime | None
+    failure_reason: str | None
+    refund_reason: str | None
+    refund_amount: float | None
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
