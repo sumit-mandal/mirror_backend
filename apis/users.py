@@ -25,7 +25,10 @@ def register(payload:UserCreate,db:Session = Depends(get_db)):
         company_id = payload.company_id,
         department = payload.department,
         job_title=payload.job_title,
-        avatar_url=payload.avatar_url
+        avatar_url=payload.avatar_url,
+        career_level=payload.career_level,
+        industry=payload.industry,
+        pronouns=payload.pronouns
     )
 
     db.add(new_user)
@@ -66,7 +69,7 @@ def update_user(identifier:str, payload:UserUpdate,db:Session=Depends(get_db)):
 
     if payload.email is not None: 
         email_normalized = payload.email.strip().lower()
-        existing_user = db.query(User).filter(User.email==email_normalized, User.id != user_id).first()
+        existing_user = db.query(User).filter(User.email==email_normalized, User.id != user.id).first()
         if existing_user: 
             raise HTTPException(status_code = 409, detail="Email already registered")
 
@@ -79,6 +82,9 @@ def update_user(identifier:str, payload:UserUpdate,db:Session=Depends(get_db)):
         user.password_hash = hash_password(payload.password)
 
     if payload.role is not None:
+        user.role = payload.role
+
+    if payload.company_id is not None:
         user.company_id = payload.company_id
 
     if payload.department is not None: 
@@ -89,6 +95,15 @@ def update_user(identifier:str, payload:UserUpdate,db:Session=Depends(get_db)):
 
     if payload.avatar_url is not None:
         user.avatar_url = payload.avatar_url
+
+    if payload.career_level is not None:
+        user.career_level = payload.career_level
+
+    if payload.industry is not None:
+        user.industry = payload.industry
+
+    if payload.pronouns is not None:
+        user.pronouns = payload.pronouns
 
     db.commit()
     db.refresh(user)

@@ -15,6 +15,9 @@ class UserCreate(BaseModel):
     department: str | None = Field(None, max_length=255)
     job_title: str | None = Field(None, max_length=255)
     avatar_url: str | None = Field(None, max_length=500)
+    career_level: Literal["Executive/C-Suite", "Director/VP", "Manager/Team Leader","Individual Contributor","Individual Contributor","Entry Level","Other"] | None
+    industry: Literal["Technology", "Finance/Banking", "Healthcare", "Manufacturing","Education","Retail","Consulting" "Government", "Media/Entertainment", "Energy/Utilities", "Non-Profit","Other"] | None
+    pronouns: Literal["he/him", "she/her", "they/them", "Custom/ Prefer not to say"] | None
 
 
 class UserRead(BaseModel):
@@ -26,9 +29,13 @@ class UserRead(BaseModel):
     department: str | None 
     job_title: str | None 
     avatar_url: str | None 
+    career_level: str | None
+    industry: str | None
+    pronouns: str | None
     email_verified: bool | None 
     created_at: datetime 
     updated_at: datetime 
+    
 
     class Config: 
         from_attributes = True 
@@ -43,6 +50,10 @@ class UserUpdate(BaseModel):
     department: str | None = Field(None, max_length=255)
     job_title: str | None = Field(None, max_length=255)
     avatar_url: str | None = Field(None, max_length=500)
+    career_level: Literal["Executive/C-Suite", "Director/VP", "Manager/Team Leader","Individual Contributor","Individual Contributor","Entry Level","Other"] | None
+    industry: Literal["Technology", "Finance/Banking", "Healthcare", "Manufacturing","Education","Retail","Consulting" "Government", "Media/Entertainment", "Energy/Utilities", "Non-Profit","Other"] | None
+    pronouns: Literal["he/him", "she/her", "they/them", "Custom/ Prefer not to say"] | None
+
 
 class LoginRequest(BaseModel):
     email: EmailStr
@@ -211,3 +222,60 @@ class PaymentTransactionRead(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class PackTypeCreate(BaseModel): 
+    pack_type: str = Field(min_length=1, max_length=50)
+    total_licenses: int = Field(gt=0) 
+    is_active: bool = True
+
+class PackTypeRead(BaseModel):
+    id: UUID
+    pack_type: str
+    total_licenses: int
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class PackTypeUpdate(BaseModel):
+    pack_type: str | None = Field(None, min_length=1, max_length=50)
+    total_licenses: int | None = Field(None, gt=0)
+    is_active: bool | None = None
+
+
+class CreditCreate(BaseModel):
+    code: str | None = Field(None, min_length=1, max_length=50)
+    uses_total: int = Field(gt=0, default=1)
+    expires_at: datetime | None = None 
+
+class CreditRead(BaseModel):
+    id: UUID
+    code: str
+    company_id: UUID
+    created_by_user_id: UUID | None
+    uses_total: int
+    uses_remaining: int
+    claimed_by_user_id: UUID | None
+    claimed_at: datetime | None
+    expires_at: datetime | None
+    status: Literal["active", "expired", "claimed"]
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+    class CreditClaimRequest(BaseModel):
+        code: str = Field(min_length=1, max_length=50)
+
+
+class CreditClaimRequest(BaseModel):
+    code: str = Field(min_length=1, max_length=50)
+
+class CreditClaimResponse(BaseModel):
+    success: bool
+    message: str
+    credit: CreditRead | None = None

@@ -87,6 +87,9 @@ class User(Base):
     avatar_url = sa.Column(sa.String(500))
     department = sa.Column(sa.String(500))
     job_title = sa.Column(sa.String(255))
+    career_level = sa.Column(sa.String(100))
+    industry = sa.Column(sa.String(100))
+    pronouns = sa.Column(sa.String(50))
     created_at = sa.Column(
         sa.TIMESTAMP(timezone=True),
         nullable=False,
@@ -217,3 +220,94 @@ class LicensePack(Base):
         server_default=sa.text("CURRENT_TIMESTAMP"),
         onupdate=sa.text("CURRENT_TIMESTAMP"),
     )
+
+class PackType(Base):
+    __tablename__ = "pack_types"
+    __table_args__ = (
+        sa.Index("idx_pack_types_pack_type", "pack_type"),
+        sa.Index("idx_pack_types_is_active", "is_active"),
+    )
+
+    id = sa.Column(
+        pg.UUID(as_uuid=True),
+        primary_key=True,
+        server_default=sa.text("gen_random_uuid()"),
+    )
+
+    pack_type = sa.Column(sa.String(50), nullable=False, unique=True)  # e.g., "5-pack", "10-pack"
+    total_licenses = sa.Column(sa.Integer, nullable=False)
+    is_active = sa.Column(sa.Boolean, nullable=False, server_default=sa.text("TRUE"))
+
+    created_at = sa.Column(
+        sa.TIMESTAMP(timezone=True),
+        nullable=False,
+        server_default=sa.text("CURRENT_TIMESTAMP"),
+    )
+
+    updated_at = sa.Column(
+        sa.TIMESTAMP(timezone=True),
+        nullable=False,
+        server_default=sa.text("CURRENT_TIMESTAMP"),
+        onupdate=sa.text("CURRENT_TIMESTAMP"),
+    )
+
+
+class Credit(Base):
+    __tablename__ = "credits"
+    __table_args__ = (
+        sa.Index("idx_credits_code", "code"),
+        sa.Index("idx_credits_status", "status"),
+        sa.Index("idx_credits_company_id", "company_id"),
+        sa.Index("idx_credits_created_by", "created_by_user_id"),
+    )
+
+    id = sa.Column(
+        pg.UUID(as_uuid=True),
+        primary_key=True,
+        server_default=sa.text("gen_random_uuid()"),
+    )
+
+    code = sa.Column(sa.String(50), nullable=False, unique=True)
+
+    company_id = sa.Column(
+        pg.UUID(as_uuid=True),
+        sa.ForeignKey("companies.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    created_by_user_id = sa.Column(
+        pg.UUID(as_uuid=True),
+        sa.ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+
+    uses_total = sa.Column(sa.Integer, nullable=False, server_default="1")
+    uses_remaining = sa.Column(sa.Integer, nullable=False, server_default="1") 
+    claimed_by_user_id = sa.Column(
+        pg.UUID(as_uuid=True),
+        sa.ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+
+    claimed_at = sa.Column(sa.TIMESTAMP(timezone=True))
+    expires_at = sa.Column(sa.TIMESTAMP(timezone=True))
+    status = sa.Column(sa.String(50), nullable=False, server_default="active")
+
+    created_at = sa.Column(
+        sa.TIMESTAMP(timezone=True),
+        nullable=False,
+        server_default=sa.text("CURRENT_TIMESTAMP"),
+    )
+
+    updated_at = sa.Column(
+        sa.TIMESTAMP(timezone=True),
+        nullable=False,
+        server_default=sa.text("CURRENT_TIMESTAMP"),
+        onupdate=sa.text("CURRENT_TIMESTAMP"),
+    )
+
+
+    # Relationships
+    company = relationship("Company")
+    created_by = relationship("User", foreign_keys=[created_by_user_id])
+    claimed_by = relationship("User", foreign_keys=[claimed_by_user_id])

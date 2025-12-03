@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from apis.users import router as users_router
 from apis.companies import router as company_router
 from apis.payments_api import router as payments_router
+from apis.credits_api import router as credits_router
 
 app = FastAPI(title= "Backend for MirrorMinds")
 
@@ -18,6 +19,7 @@ app.add_middleware(
 app.include_router(users_router)
 app.include_router(company_router)
 app.include_router(payments_router)
+app.include_router(credits_router)
 
 @app.get("/ping")
 def read_root():
